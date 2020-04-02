@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Upload Artifact to S3
           command: |
-            aws s3 cp Lambda-0.0.1-SNAPSHOT.jar s3://${CODE_DEPLOY_S3_BUCKET}
+            aws s3 cp Lambda/target/Lambda-0.0.1-SNAPSHOT.jar s3://${CODE_DEPLOY_S3_BUCKET}
 
       - run:
           name: Email Lambda function
