@@ -45,7 +45,7 @@ jobs:
       - run:
           name: Email Lambda function
           command: |
-            cd target
+            cd Lambda/target/
             ls -al
             aws lambda update-function-code --function-name=SendEmailOnSNS --zip-file=fileb://Lambda-0.0.1-SNAPSHOT.jar
 workflows:
