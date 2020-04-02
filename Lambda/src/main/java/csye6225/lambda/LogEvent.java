@@ -72,7 +72,7 @@ public class LogEvent implements RequestHandler<SNSEvent, Object> {
 
 			for (String value : values) {
 				// this.body += "\n http://prod.hemantjain.me/v1/bill/" + value.trim() + "\n";
-				this.body = "\n http://" + domainName + "/v1/bill/" + value.trim() + "\n";
+				this.body += "\n http://" + domainName + "/v1/bill/" + value.trim() + "\n";
 			}
 
 			// this.body = "Bill with the Dues are as follows : \n
