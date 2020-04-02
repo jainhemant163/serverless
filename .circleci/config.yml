@@ -1,0 +1,46 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:2.7-jessie
+      - image: circleci/openjdk:8u171-jdk
+    steps:
+      - checkout
+      - run:
+          name: Install packages
+          command: sudo apt-get update && sudo apt-get install wget zip unzip -y
+      - run:
+          name: Install awscli2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+
+      - run:
+          name: Download packer 
+          command: |
+            wget -q https://releases.hashicorp.com/packer/1.3.4/packer_1.3.4_linux_amd64.zip 
+            unzip packer*.zip  
+            chmod +x packer
+      - run:
+          name: Validate Packer Template
+          command: ./packer validate build.json
+      - run:
+          name: Build AMI
+          command: |
+            ./packer build \
+            -var "aws_access_key=${AWS_ACCESS_KEY}" \
+            -var "ami_users=${AMI_USERS}" \
+            -var "aws_secret_key=${AWS_SECRET_KEY}" \
+            -var "aws_region=${AWS_REGION}" \
+            -var "subnet_id=${AWS_SUBNET_ID}" \
+            build.json
+workflows:
+  version: 2                        
+  build-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
