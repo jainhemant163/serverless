@@ -24,12 +24,24 @@ jobs:
              mvn clean install
              cd target/
              ls -al
-
+      -  run:
+          name: Zip Artifact
+          command: |
+            echo "current build number is ${CIRCLE_BUILD_NUM}"
+            pwd
+            mkdir -p codedeploy_artifact
+            cd codedeploy_artifact
+            cp ../Lambda/target/Lambda-0.0.1-SNAPSHOT.jar .
+            ls -al
+            pwd
+            cd ..
+            pwd
+            ls -al
       - run:
           name: Upload Artifact to S3
           command: |
-            aws s3 cp Lambda/target/Lambda-0.0.1-SNAPSHOT.jar s3://${CODE_DEPLOY_S3_BUCKET}
-
+            aws s3 cp --recursive codedeploy_artifact s3://${CODE_DEPLOY_S3_BUCKET}
+  
       - run:
           name: Email Lambda function
           command: |
