@@ -1,13 +1,46 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-# Use a package of configuration called an orb.
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.4.1
-# Orchestrate or schedule a set of jobs
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:2.7-jessie
+      - image: circleci/openjdk:8u171-jdk
+    steps:
+      - checkout
+      - run:
+          name: Install packages
+          command: sudo apt-get update && sudo apt-get install wget zip unzip -y
+      - run:
+          name: Install awscli2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+
+      - run:
+          name: Download packer 
+          command: |
+            wget -q https://releases.hashicorp.com/packer/1.3.4/packer_1.3.4_linux_amd64.zip 
+            unzip packer*.zip  
+            chmod +x packer
+      - run:
+          name: Validate Packer Template
+          command: ./packer validate build.json
+      - run:
+          name: Build AMI
+          command: |
+            ./packer build \
+            -var "aws_access_key=${AWS_ACCESS_KEY}" \
+            -var "ami_users=${AMI_USERS}" \
+            -var "aws_secret_key=${AWS_SECRET_KEY}" \
+            -var "aws_region=${AWS_REGION}" \
+            -var "subnet_id=${AWS_SUBNET_ID}" \
+            build.json
 workflows:
-  # Name the workflow "welcome"
-  welcome:
-    # Run the welcome/run job in its own container
+  version: 2                        
+  build-deploy:
     jobs:
-      - welcome/run
+      - build:
+          filters:
+            branches:
+              only: master
