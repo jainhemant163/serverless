@@ -24,10 +24,12 @@ jobs:
              mvn clean install
              cd target/
              ls -al
+             cp Lambda-0.0.1-SNAPSHOT.jar .
+
       - run:
           name: Upload Artifact to S3
           command: |
-            aws s3 cp --recursive --zip-file=fileb://Lambda-0.0.1-SNAPSHOT.jar s3://${CODE_DEPLOY_S3_BUCKET}
+            aws s3 cp --recursive Lambda-0.0.1-SNAPSHOT.jar s3://${CODE_DEPLOY_S3_BUCKET}
 
       - run:
           name: Email Lambda function
